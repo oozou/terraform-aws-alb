@@ -12,6 +12,7 @@ locals {
   https_ingress_cidr_blocks_v4 = [for cidr in var.https_ingress_cidr_blocks : cidr if can(cidrnetmask(cidr))]
   https_ingress_cidr_blocks_v6 = var.ip_address_type == "dualstack" ? [for cidr in var.https_ingress_cidr_blocks : cidr if !can(cidrnetmask(cidr)) && can(cidrhost(cidr, 0))] : []
 
+  alb_access_logs_bucket_name= var.alb_access_logs_bucket_name != "" ? var.alb_access_logs_bucket_name : try(module.s3_alb_log_bucket[0].bucket_name, null)
   tags = merge(
     {
       "Environment" = var.environment,

@@ -70,13 +70,11 @@ resource "aws_lb" "this" {
   xff_header_processing_mode = var.xff_header_processing_mode
   client_keep_alive          = var.client_keep_alive
 
-  dynamic "access_logs" {
-    for_each = var.is_enable_access_log ? [1] : []
-    content {
-      bucket  = var.alb_access_logs_bucket_name != "" ? var.alb_access_logs_bucket_name : try(module.s3_alb_log_bucket[0].bucket_name, null)
-      prefix  = "${local.alb_name}-alb"
-      enabled = true
-    }
+
+  access_logs {
+    bucket  = local.alb_access_logs_bucket_name
+    prefix  = "${local.alb_name}-alb"
+    enabled = var.is_enable_access_log
   }
 
   tags = merge(local.tags, { "Name" : var.is_public_alb ? format("%s-alb", local.alb_name) : format("%s-internal-alb", local.alb_name) })
