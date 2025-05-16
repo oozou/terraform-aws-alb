@@ -54,8 +54,6 @@ resource "aws_security_group_rule" "alb_ingress" {
 /* -------------------------------------------------------------------------- */
 /*                                     ALB                                    */
 /* -------------------------------------------------------------------------- */
-# Define the routing for the workloads
-# Application Load Balancer Creation (ALB) in the DMZ
 resource "aws_lb" "this" {
   name                       = var.is_public_alb ? format("%s-alb", local.alb_name) : format("%s-internal-alb", local.alb_name)
   load_balancer_type         = "application"
