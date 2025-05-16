@@ -22,3 +22,8 @@ output "alb_dns_name" {
   description = "The DNS name of the load balancer."
   value       = try(aws_lb.this[0].dns_name, "")
 }
+
+output "alb_sg_id" {
+  description = "The security group id of the ALB"
+  value       = try(aws_security_group.alb[0].id, "")
+}
