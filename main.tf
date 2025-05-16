@@ -183,7 +183,7 @@ data "aws_elb_service_account" "this" {
 }
 
 data "aws_iam_policy_document" "alb_log" {
-  count = var.alb_access_logs_bucket_name != "" && var.is_enable_access_log ? 1 : 0
+  count = var.alb_access_logs_bucket_name == "" && var.is_enable_access_log ? 1 : 0
   statement {
     sid    = "AllowALBServicePrincipal"
     effect = "Allow"
