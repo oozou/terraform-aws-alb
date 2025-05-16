@@ -72,7 +72,7 @@ resource "aws_lb" "this" {
 
 
   dynamic "access_logs" {
-    for_each = var.is_enable_access_log ? [true] : []
+    for_each = var.is_enable_access_log ? [1] : []
     content {
       bucket  = local.alb_access_logs_bucket_name
       prefix  = "${local.alb_name}-alb"
