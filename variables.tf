@@ -287,6 +287,12 @@ variable "listener_https_fixed_response" {
   default = null
 }
 
+variable "alb_access_logs_bucket_name" {
+  description = "ALB access_logs S3 bucket name."
+  type        = string
+  default     = ""
+}
+
 variable "alb_s3_access_principals" {
   type = list(object({
     type        = string

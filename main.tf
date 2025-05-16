@@ -71,7 +71,7 @@ resource "aws_lb" "this" {
   client_keep_alive          = var.client_keep_alive
 
   access_logs {
-    bucket  = try(module.s3_alb_log_bucket[0].bucket_name, null)
+    bucket  = var.alb_access_logs_bucket_name != "" ? var.alb_access_logs_bucket_name : try(module.s3_alb_log_bucket[0].bucket_name, null)
     prefix  = "${local.alb_name}-alb"
     enabled = var.is_enable_access_log
   }
@@ -181,7 +181,7 @@ data "aws_elb_service_account" "this" {
 }
 
 data "aws_iam_policy_document" "alb_log" {
-  count = var.is_enable_access_log ? 1 : 0
+  count = var.alb_access_logs_bucket_name != "" && var.is_enable_access_log ? 1 : 0
   statement {
     sid    = "AllowALBServicePrincipal"
     effect = "Allow"
@@ -191,7 +191,7 @@ data "aws_iam_policy_document" "alb_log" {
     resources = ["${module.s3_alb_log_bucket[0].bucket_arn}/*"]
 
     dynamic "principals" {
-      for_each = length(var.alb_s3_access_principals) > 0 ? [var.alb_s3_access_principals] : [{
+      for_each = length(var.alb_s3_access_principals) > 0 ? var.alb_s3_access_principals : [{
         type        = "AWS"
         identifiers = data.aws_elb_service_account.this[*].arn
       }]
@@ -206,7 +206,7 @@ data "aws_iam_policy_document" "alb_log" {
 module "s3_alb_log_bucket" {
   source  = "oozou/s3/aws"
   version = "1.1.5"
-  count   = var.is_enable_access_log ? 1 : 0
+  count   = var.alb_access_logs_bucket_name != "" && var.is_enable_access_log ? 1 : 0
 
   prefix      = var.prefix
   environment = var.environment
