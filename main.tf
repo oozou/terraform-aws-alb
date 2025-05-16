@@ -208,7 +208,7 @@ data "aws_iam_policy_document" "alb_log" {
 module "s3_alb_log_bucket" {
   source  = "oozou/s3/aws"
   version = "1.1.5"
-  count   = var.alb_access_logs_bucket_name != "" && var.is_enable_access_log ? 1 : 0
+  count   = var.alb_access_logs_bucket_name == "" && var.is_enable_access_log ? 1 : 0
 
   prefix      = var.prefix
   environment = var.environment
