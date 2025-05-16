@@ -71,10 +71,13 @@ resource "aws_lb" "this" {
   client_keep_alive          = var.client_keep_alive
 
 
-  access_logs {
-    bucket  = local.alb_access_logs_bucket_name
-    prefix  = "${local.alb_name}-alb"
-    enabled = var.is_enable_access_log
+  dynamic "access_logs" {
+    for_each = var.is_enable_access_log ? [true] : []
+    content {
+      bucket  = local.alb_access_logs_bucket_name
+      prefix  = "${local.alb_name}-alb"
+      enabled = var.is_enable_access_log
+    }
   }
 
   tags = merge(local.tags, { "Name" : var.is_public_alb ? format("%s-alb", local.alb_name) : format("%s-internal-alb", local.alb_name) })
