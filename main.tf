@@ -176,7 +176,9 @@ resource "aws_lb_listener" "front_end_https_http_redirect" {
 /*                              ALB Access Log Bucket                         */
 /* -------------------------------------------------------------------------- */
 
-data "aws_elb_service_account" "this" {}
+data "aws_elb_service_account" "this" {
+  count = var.alb_s3_access_principals == [] ? 1 : 0
+}
 
 data "aws_iam_policy_document" "alb_log" {
   count = var.is_enable_access_log ? 1 : 0
@@ -188,7 +190,7 @@ data "aws_iam_policy_document" "alb_log" {
     ]
     resources = ["${module.s3_alb_log_bucket[0].bucket_arn}/*"]
     principals {
-      identifiers = [join("", data.aws_elb_service_account.this[*].arn)]
+      identifiers = var.alb_s3_access_principals == [] ? [join("", data.aws_elb_service_account.this[*].arn)] : var.alb_s3_access_principals
       type        = "AWS"
     }
   }

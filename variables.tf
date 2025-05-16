@@ -287,6 +287,15 @@ variable "listener_https_fixed_response" {
   default = null
 }
 
+variable "alb_s3_access_principals" {
+  type = list(object({
+    type        = string
+    identifiers = list(string)
+  }))
+
+  default = []
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                     DNS                                    */
 /* -------------------------------------------------------------------------- */
