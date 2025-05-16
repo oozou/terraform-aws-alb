@@ -30,5 +30,5 @@ output "alb_sg_id" {
 
 output "service_discovery_namespace" {
   description = "The ID of a namespace."
-  value       = aws_service_discovery_private_dns_namespace.internal[0].id
+  value       = try(aws_service_discovery_private_dns_namespace.internal[0].id, "")
 }
