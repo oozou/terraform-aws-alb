@@ -51,6 +51,17 @@ resource "aws_security_group_rule" "alb_ingress" {
   source_security_group_id = lookup(each.value, "source_security_group_id", null)
 }
 
+
+resource "aws_security_group_rule" "egress" {
+  count             = var.is_create_alb_security_group ? 1 : 0
+  type              = "egress"
+  from_port         = "0"
+  to_port           = "0"
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.alb[0].id
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                     ALB                                    */
 /* -------------------------------------------------------------------------- */
