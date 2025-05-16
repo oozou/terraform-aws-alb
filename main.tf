@@ -20,7 +20,7 @@ resource "aws_security_group_rule" "http_ingress" {
   cidr_blocks       = local.http_ingress_cidr_blocks_v4
   ipv6_cidr_blocks  = local.http_ingress_cidr_blocks_v6
   prefix_list_ids   = var.http_ingress_prefix_list_ids
-  security_group_id = one(aws_security_group.alb[*].id)
+  security_group_id = aws_security_group.alb[0].id
 }
 
 resource "aws_security_group_rule" "https_ingress" {
@@ -32,7 +32,7 @@ resource "aws_security_group_rule" "https_ingress" {
   cidr_blocks       = local.https_ingress_cidr_blocks_v4
   ipv6_cidr_blocks  = local.https_ingress_cidr_blocks_v6
   prefix_list_ids   = var.https_ingress_prefix_list_ids
-  security_group_id = one(aws_security_group.alb[*].id)
+  security_group_id = aws_security_group.alb[0].id
 }
 
 resource "aws_security_group_rule" "alb_ingress" {
@@ -42,7 +42,7 @@ resource "aws_security_group_rule" "alb_ingress" {
   from_port         = lookup(each.value, "from_port", lookup(each.value, "port", null))
   to_port           = lookup(each.value, "to_port", lookup(each.value, "port", null))
   protocol          = lookup(each.value, "protocol", null)
-  security_group_id = one(aws_security_group.alb[*].id)
+  security_group_id = aws_security_group.alb[0].id
 
   cidr_blocks              = lookup(each.value, "cidr_blocks", null)
   description              = lookup(each.value, "description", null)
@@ -81,26 +81,26 @@ resource "aws_lb" "this" {
 
 resource "aws_lb_target_group" "this" {
   count                             = var.is_default_target_group_enabled ? 1 : 0
-  name                              = substr(format("%s-tg", local.alb_name), 0, var.default_tg_config.target_group_name_max_length)
-  port                              = var.default_tg_config.target_group_port
-  protocol                          = var.default_tg_config.target_group_protocol
-  protocol_version                  = var.default_tg_config.target_group_protocol_version
+  name                              = substr(format("%s-tg", local.alb_name), 0, var.default_tg_config.name_max_length)
+  port                              = var.default_tg_config.port
+  protocol                          = var.default_tg_config.protocol
+  protocol_version                  = var.default_tg_config.protocol_version
   vpc_id                            = var.vpc_id
-  target_type                       = var.default_tg_config.target_group_target_type
+  target_type                       = var.default_tg_config.target_type
   load_balancing_algorithm_type     = var.default_tg_config.load_balancing_algorithm_type
   load_balancing_anomaly_mitigation = var.default_tg_config.load_balancing_anomaly_mitigation
   deregistration_delay              = var.default_tg_config.deregistration_delay
   slow_start                        = var.default_tg_config.slow_start
 
   health_check {
-    protocol            = var.default_tg_hc_config.health_check_protocol != null ? var.default_tg_hc_config.health_check_protocol : var.default_tg_hc_config.target_group_protocol
-    path                = var.default_tg_hc_config.health_check_path
-    port                = var.default_tg_hc_config.health_check_port
-    timeout             = var.default_tg_hc_config.health_check_timeout
-    healthy_threshold   = var.default_tg_hc_config.health_check_healthy_threshold
-    unhealthy_threshold = var.default_tg_hc_config.health_check_unhealthy_threshold
-    interval            = var.default_tg_hc_config.health_check_interval
-    matcher             = var.default_tg_hc_config.health_check_matcher
+    protocol            = var.default_tg_hc_config.protocol != null ? var.default_tg_hc_config.protocol : var.default_tg_hc_config.protocol
+    path                = var.default_tg_hc_config.path
+    port                = var.default_tg_hc_config.port
+    timeout             = var.default_tg_hc_config.timeout
+    healthy_threshold   = var.default_tg_hc_config.healthy_threshold
+    unhealthy_threshold = var.default_tg_hc_config.unhealthy_threshold
+    interval            = var.default_tg_hc_config.interval
+    matcher             = var.default_tg_hc_config.matcher
   }
 
   dynamic "stickiness" {
@@ -108,7 +108,7 @@ resource "aws_lb_target_group" "this" {
     content {
       type            = "lb_cookie"
       cookie_duration = stickiness.value.cookie_duration
-      enabled         = var.default_tg_config.target_group_protocol == "TCP" ? false : stickiness.value.enabled
+      enabled         = var.default_tg_config.protocol == "TCP" ? false : stickiness.value.enabled
     }
   }
 
@@ -125,7 +125,7 @@ resource "aws_lb_target_group" "this" {
 }
 
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.this[0].id
+  load_balancer_arn = aws_lb.this.id
 
   port            = var.alb_listener_port
   protocol        = var.alb_listener_port == 443 ? "HTTPS" : "HTTP"
@@ -134,7 +134,7 @@ resource "aws_lb_listener" "http" {
 
 
   default_action {
-    target_group_arn = var.listener_https_fixed_response != null ? null : one(aws_lb_target_group.this[*].arn)
+    target_group_arn = var.listener_https_fixed_response != null ? null : aws_lb_target_group.this[0].arn
     type             = var.listener_https_fixed_response != null ? "fixed-response" : "forward"
 
     dynamic "fixed_response" {
@@ -156,7 +156,7 @@ resource "aws_lb_listener" "front_end_https_http_redirect" {
     aws_lb_listener.http
   ]
 
-  load_balancer_arn = aws_lb.this[0].id
+  load_balancer_arn = aws_lb.this.id
 
   port     = "80"
   protocol = "HTTP"
@@ -186,7 +186,7 @@ data "aws_iam_policy_document" "alb_log" {
     actions = [
       "s3:PutObject",
     ]
-    resources = ["${module.s3_alb_log_bucket.bucket_arn}/*"]
+    resources = ["${module.s3_alb_log_bucket[0].bucket_arn}/*"]
     principals {
       identifiers = [join("", data.aws_elb_service_account.this[*].arn)]
       type        = "AWS"
@@ -247,8 +247,8 @@ module "application_record" {
       type = "A"
 
       alias = {
-        name                   = aws_lb.this[0].dns_name # Target DNS name
-        zone_id                = aws_lb.this[0].zone_id
+        name                   = aws_lb.this.dns_name # Target DNS name
+        zone_id                = aws_lb.this.zone_id
         evaluate_target_health = true
       }
     }

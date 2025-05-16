@@ -85,17 +85,6 @@ variable "http_ingress_cidr_blocks" {
   }
 }
 
-variable "ip_address_type" {
-  description = "The type of IP addresses used by the subnets for ALB `ipv4` and `dualstack`."
-  type        = string
-  default     = "ipv4"
-
-  validation {
-    condition     = contains(["ipv4", "dualstack"], var.ip_address_type)
-    error_message = "ip_address_type must be either `ipv4` or `dualstack`."
-  }
-}
-
 variable "https_ingress_cidr_blocks" {
   description = "List of CIDR blocks to allow in HTTPS security group"
   type        = list(string)

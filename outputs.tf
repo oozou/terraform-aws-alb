@@ -1,16 +1,16 @@
 output "alb_arn" {
   description = "ARN of alb"
-  value       = try(aws_lb.this[0].arn, "")
+  value       = try(aws_lb.this.arn, "")
 }
 
 output "alb_id" {
   description = "ID of alb"
-  value       = try(aws_lb.this[0].id, "")
+  value       = try(aws_lb.this.id, "")
 }
 
 output "alb_listener_http_arn" {
   description = "ARN of the listener (matches id)."
-  value       = try(aws_lb_listener.http[0].arn, "")
+  value       = try(aws_lb_listener.http.arn, "")
 }
 
 output "alb_listener_https_redirect_arn" {
@@ -20,7 +20,7 @@ output "alb_listener_https_redirect_arn" {
 
 output "alb_dns_name" {
   description = "The DNS name of the load balancer."
-  value       = try(aws_lb.this[0].dns_name, "")
+  value       = try(aws_lb.this.dns_name, "")
 }
 
 output "alb_sg_id" {
