@@ -219,8 +219,9 @@ module "s3_alb_log_bucket" {
 # Setup DNS discovery
 resource "aws_service_discovery_private_dns_namespace" "internal" {
   # This name does not follow convention because it is used as part of the domain name
+  count = var.is_create_discovery_namespace ? 1 : 0
   name        = "${local.alb_name}.internal"
-  description = "Service Discovery for internal communcation for ${local.alb_name} ECS cluster"
+  description = "Service Discovery for internal communcation"
   vpc         = var.vpc_id
 
   tags = merge(local.tags, { "Name" : format("%s.internal", local.alb_name) })

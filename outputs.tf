@@ -27,3 +27,8 @@ output "alb_sg_id" {
   description = "The security group id of the ALB"
   value       = try(aws_security_group.alb[0].id, "")
 }
+
+output "service_discovery_namespace" {
+  description = "The ID of a namespace."
+  value       = aws_service_discovery_private_dns_namespace.internal[0].id
+}
