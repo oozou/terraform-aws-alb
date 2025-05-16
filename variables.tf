@@ -1,22 +1,27 @@
 /* -------------------------------------------------------------------------- */
-/*                                  Generics                                  */
+/*                                   Generic                                  */
 /* -------------------------------------------------------------------------- */
-variable "generics_info" {
-  description = <<EOF
-  `region`      >> [Required] Details for the AWS account where resource will be deploy
-  `prefix`      >> The prefix name of customer to be displayed in AWS console and resource
-  `environment` >> Environment Variable used as a prefix
-  `name`        >> Name of the alb to create
-  `tags` >> Custom tags which can be passed on to the AWS resources. They should be key value pairs having distinct keys
-  EOF
-  type = object({
-    region      = string
-    prefix      = string
-    environment = string
-    name        = string
-    tags        = map(any)
-  })
+variable "name" {
+  description = "Name of the alb to create"
+  type        = string
 }
+
+variable "environment" {
+  description = "Environment Variable used as a prefix"
+  type        = string
+}
+
+variable "prefix" {
+  description = "The prefix name of customer to be displayed in AWS console and resource"
+  type        = string
+}
+
+variable "tags" {
+  description = "Custom tags which can be passed on to the AWS resources. They should be key value pairs having distinct keys"
+  type        = map(any)
+  default     = {}
+}
+
 
 /* -------------------------------------------------------------------------- */
 /*                               Security Group                               */

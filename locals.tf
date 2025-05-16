@@ -2,7 +2,7 @@
 /*                                  Generics                                  */
 /* -------------------------------------------------------------------------- */
 locals {
-  alb_name_temp = "${var.generics_info.prefix}-${var.generics_info.environment}-${var.generics_info.name}"
+  alb_name_temp = "${var.prefix}-${var.environment}-${var.name}"
   alb_name      = substr("${local.alb_name_temp}", 0, min(32, length(local.alb_name_temp)))
 
   alb_aws_security_group_id = var.is_create_alb_security_group ? aws_security_group.alb[0].id : var.alb_aws_security_group_id
@@ -14,10 +14,10 @@ locals {
 
   tags = merge(
     {
-      "Environment" = var.generics_info.environment,
+      "Environment" = var.environment,
       "Terraform"   = "true"
     },
-    var.generics_info.tags
+    var.tags
   )
 }
 /* ----------------------------- Raise Condition ---------------------------- */

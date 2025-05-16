@@ -199,9 +199,9 @@ module "s3_alb_log_bucket" {
   version = "1.1.5"
   count   = var.is_enable_access_log ? 1 : 0
 
-  prefix      = var.generics_info.prefix
-  environment = var.generics_info.environment
-  bucket_name = format("%s-alb-log-bucket", var.generics_info.name)
+  prefix      = var.prefix
+  environment = var.environment
+  bucket_name = format("%s-alb-log-bucket", var.name)
 
   versioning_enabled            = false
   is_enable_s3_hardening_policy = false
@@ -236,8 +236,8 @@ module "application_record" {
   is_create_zone = false
   is_public_zone = true # Default `true`
 
-  prefix      = var.generics_info.prefix
-  environment = var.generics_info.environment
+  prefix      = var.prefix
+  environment = var.environment
 
   dns_name = var.route53_hosted_zone_name
 
