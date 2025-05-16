@@ -189,9 +189,16 @@ data "aws_iam_policy_document" "alb_log" {
       "s3:PutObject",
     ]
     resources = ["${module.s3_alb_log_bucket[0].bucket_arn}/*"]
-    principals {
-      identifiers = var.alb_s3_access_principals == [] ? [join("", data.aws_elb_service_account.this[*].arn)] : var.alb_s3_access_principals
-      type        = "AWS"
+
+    dynamic "principals" {
+      for_each = length(var.alb_s3_access_principals) > 0 ? [var.alb_s3_access_principals] : [{
+        type        = "AWS"
+        identifiers = data.aws_elb_service_account.this[*].arn
+      }]
+      content {
+        type        = principals.value.type
+        identifiers = principals.value.identifiers
+      }
     }
   }
 }
